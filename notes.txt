@@ -1,0 +1,158 @@
+MongoDB
+---------
+	- Is a unstructured database
+	- Stores the data in JSON format.
+
+	- Unstructures data types:
+ex: Customers:[
+ {
+	"id":101.
+	"name":"abc,
+	"mobile":1234566
+	"email":"abc@gmail.com"
+	"address":[
+		{"id":1, "street":"aaa", "city":"bbb", "state":"ccc, "pin":9586},
+		{"id":1, "street":"aaa", "city":"bbb", "state":"ccc, "pin":9586},
+		{"id":1, "street":"aaa", "city":"bbb", "state":"ccc, "pin":9586}
+		]
+   }
+]
+
+	           	- Documents (JSON) 	- MongoDB, SQL API(DocumentDB)
+			- Key-Value Pair	- Azure Table API, redis Database
+			- Graph			- Gremlin, Neo4j
+			- Column family		- cassandra
+
+        - Mongo DB is open source driven by MongoDB community.
+	- Onpremise NoSQL database that folloes documents data Storage
+	- Supports data indexing and partitioning (Sharding) for better perfomance.
+	- Highly secured
+	 It use JSON(Binary JSON) as the data storage format and JavaScript as procedure and functions
+
+Installling MongoDB
+			- install Binary file(installable), Run as windo service
+			- portable executable is available, Download zip and extract. Need to run explicitly
+			- in the bin folder we can see mongoDB server and client
+				-Server      	- mongod.exe
+				- Client tool	- mongo.exe(CUI)
+				- GUI Client    - VS Code CosmosDB plugin, NoSQL Booster for MongoDB, MongoCompass
+				- Migration tools
+					- mongoexport.exe
+					- mongodump.exe
+					- mongoimport.exe
+					- mongorestoe.exe
+
+- mongodb://[hostname/ipaddress]:27017
+- mongodb://local:27017
+
+-bin=>mongo.exe
+    >use dbName
+    >db stats()
+	=>status of the DB
+
+	Relational DB VS NOSQL
+	- database      - database3
+	- Table		- Collection/Container
+	- Row		- Document
+	- Columns	- attributes
+
+- Every  mongodb document have a unique identifier with the name _id
+	
+db.categories.find()
+db.categories.find({id:7})
+db.categories.find()
+
+//find(filter, projection)
+ex: db.categories.find({condn},{id:0}); //0-exclude, 1:include
+
+
+db.products.find({},{_id:0, name:1, availability:1, price:1}).sort({price:-1}); // 1:asc, -1: desc
+db.products.count();
+db.products.find().limit(4);
+
+db.products.update(
+    {availability:'Out of Stock'},
+    {
+        $set:{availability:'Available', quantity:10}
+
+    },
+    {
+        multi:true
+    }
+)
+
+//-$set is used to update existing attribute value or insert a new attribute
+//multi:true option is used to update multiple records 
+- multi for updating multiple data defaukt is the first matching data
+-$unset to remove ant attribute
+db.products.update({},
+{
+    $unset:{expiry:0},
+    $set:{mfgDate: '2019-09-01'}
+},
+{
+    multi:true
+}
+);
+
+-updateMany() to update multiple attributes at once
+-$inc - to increment attribute value
+
+-upsert keyword is used to insert the attribute if the record to update is not found
+db.products.update(
+{
+    name:"Pepsi"
+},
+{
+   $set:{id:12, quantity:20, price:45}
+},
+{
+    upsert:true
+}
+);
+
+-$all operator takes an array, if a documents satisfies all of the condition, then that document gets returned
+	db.students.find({
+   		 		marks:{$all:[50,61,74]}
+			});
+-$elemMatch Any of the 
+	db.students.find({
+    marks:{$elemMatch:{$gte:85, $lte:95}}
+});
+
+-$size used to return only a specified size of an array
+db.students.find({marks:{$size:4}});
+-$slice
+-$push => push the value to an array even though the same value already exist
+db.students.update(
+   { name:'Arti'},
+   {$push:{marks:50}}
+);
+
+-$addToSet => push the value to an array only if the value does not exist in the array
+db.students.update(
+   { name:'Arti'},
+   {$addToSet:{marks:72}}
+);
+
+//MongoDb aggregation
+		-combine data from multiple documents
+
+			- Single purpose aggregation functions
+				=> distint and count functions
+			- Aggregation pipeline
+				=> An array of operation that executes one after another.
+				=>Result of one operation is the input of next operation.
+				=> We use operators like $match, $project, $group, $sort, $unwind(Cross Join, arrays unwinding) etc
+				EX:db.students.aggregate([
+    								{  $match:{location:"Chennai"}   },
+   								{  $unwind:"$marks" },
+    								{$group:{_id:"$name", totalMark:{$sum:"$marks"}}},
+								{$project:{name:"$_id", totalMark:1, _id:0}}
+							]);
+				=>_id will be used to group the document ({$group:{_id:"$name", totalMark:{$sum:"$marks"}}})
+					
+			- Map-Reduce Function (JavaScript code)
+	
+	
+
